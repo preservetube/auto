@@ -64,7 +64,7 @@ async function handleDownload(channelId) {
         await redis.set(id, 'downloading')
         logger.info({ message: `Added ${video.title} to the queue, ${id}` })
 
-        await queue.add(async () => {
+        queue.add(async () => {
             logger.info({ message: `Starting to download ${video.title}, ${id}` })
 
             const download = await ytdlp.downloadVideo('https://www.youtube.com' + video.url)

@@ -16,7 +16,7 @@ const prisma = new PrismaClient()
 
 const queue = new PQueue({ concurrency: 4 })
 
-async function handleCheck() {
+async function check() {
     const channels = await prisma.autodownload.findMany()
 
     for (c of channels) {
@@ -24,13 +24,13 @@ async function handleCheck() {
             logger.info({ message: `${c.channel} is already being downloaded` })
         } else {
             await redis.set(c.channel, 'downloading')
-            await handleDownload(c.channel)
+            await checkChannel(c.channel)
             await redis.del(c.channel)
         }
     }
 }
 
-async function handleDownload(channelId) {
+async function checkChannel(channelId) {
     logger.info({ message: `Checking ${channelId} for new videos...` })
 
     const videos = await metadata.getChannelVideos(channelId)
@@ -65,35 +65,39 @@ async function handleDownload(channelId) {
         logger.info({ message: `Added ${video.title} to the queue, ${id}` })
 
         queue.add(async () => {
-            logger.info({ message: `Starting to download ${video.title}, ${id}` })
-
-            const download = await ytdlp.downloadVideo('https://www.youtube.com' + video.url)
-            if (download.fail) {
-                logger.info({ message: `Failed downloading ${video.title}, ${id} -> ${download.message}` })
-                await redis.del(id)
-                return
-            } else {
-                const file = fs.readdirSync("./videos").find(f => f.includes(id))
-                if (file) {
-                    fs.renameSync(`./videos/${file}`, `./videos/${id}.webm`)
-                    logger.info({ message: `Downloaded ${video.title}, ${id}` })
-
-                    const videoUrl = await upload.uploadVideo(`./videos/${id}.webm`)
-                    logger.info({ message: `Uploaded ${video.title}, ${id}` })
-                    fs.unlinkSync(`./videos/${id}.webm`)
-
-                    await database.createDatabaseVideo(id, videoUrl)
-                    await redis.del(id)
-                } else {
-                    await redis.set(id, 'error')
-                    logger.info({ message: `Couldn't find file for ${video.title}, ${id}` })
-                }
-            }
+            await downloadVideo(video, id)
         })
     })
 }
 
-handleCheck()
+async function downloadVideo(video, id) {
+    logger.info({ message: `Starting to download ${video.title}, ${id}` })
+
+    const download = await ytdlp.downloadVideo('https://www.youtube.com' + video.url)
+    if (download.fail) {
+        logger.info({ message: `Failed downloading ${video.title}, ${id} -> ${download.message}` })
+        await redis.del(id)
+        return
+    } else {
+        const file = fs.readdirSync("./videos").find(f => f.includes(id))
+        if (file) {
+            fs.renameSync(`./videos/${file}`, `./videos/${id}.webm`)
+            logger.info({ message: `Downloaded ${video.title}, ${id}` })
+
+            const videoUrl = await upload.uploadVideo(`./videos/${id}.webm`)
+            logger.info({ message: `Uploaded ${video.title}, ${id}` })
+            fs.unlinkSync(`./videos/${id}.webm`)
+
+            await database.createDatabaseVideo(id, videoUrl)
+            await redis.del(id)
+        } else {
+            await redis.set(id, 'error')
+            logger.info({ message: `Couldn't find file for ${video.title}, ${id}` })
+        }
+    }
+}
+
+check()
 // setInterval(() => {
-//     handleCheck()
+//     check()
 // }, 300000)

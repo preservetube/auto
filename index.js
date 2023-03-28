@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const fs = require('node:fs')
-const { default: PQueue } = require('p-queue')
+const BQueue = require('bee-queue')
 
 const upload = require('./utils/upload.js')
 const ytdlp = require('./utils/ytdlp.js')
@@ -14,7 +14,14 @@ const logger = require("./utils/logger.js")
 const { PrismaClient } =  require('@prisma/client')
 const prisma = new PrismaClient()
 
-const queue = new PQueue({ concurrency: 4 })
+const queue = new BQueue('download', {
+    concurrency: 4,
+    redis: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+        password: process.env.REDIS_PASS,
+    }
+})
 
 async function check() {
     const channels = await prisma.autodownload.findMany()
@@ -64,20 +71,20 @@ async function checkChannel(channelId) {
         await redis.set(id, 'downloading')
         logger.info({ message: `Added ${video.title} to the queue, ${id}` })
 
-        queue.add(async () => {
-            await downloadVideo(video, id)
-        })
+        queue.createJob({ video, id }).save()
     })
 }
 
-async function downloadVideo(video, id) {
+queue.process(async function (job, done) {
+    const { video, id } = job.data
+
     logger.info({ message: `Starting to download ${video.title}, ${id}` })
 
     const download = await ytdlp.downloadVideo('https://www.youtube.com' + video.url)
     if (download.fail) {
         logger.info({ message: `Failed downloading ${video.title}, ${id} -> ${download.message}` })
         await redis.del(id)
-        return
+        return done()
     } else {
         const file = fs.readdirSync("./videos").find(f => f.includes(id))
         if (file) {
@@ -93,9 +100,10 @@ async function downloadVideo(video, id) {
         } else {
             await redis.set(id, 'error')
             logger.info({ message: `Couldn't find file for ${video.title}, ${id}` })
+            return done()
         }
     }
-}
+})
 
 check()
 // setInterval(() => {

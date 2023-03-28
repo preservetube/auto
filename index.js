@@ -57,7 +57,7 @@ async function handleDownload(channelId) {
         }
 
         if (video.duration > 7200) {
-            logger.info({ message: `${video.title} is longer than 1h30m, ${id}` })
+            logger.info({ message: `${video.title} is longer than 2h, ${id}` })
             return
         }
 

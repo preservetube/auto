@@ -107,7 +107,7 @@ queue.process(5, async function (job, done) {
     }
 })
 
-checkChannel('UCFAiFyGs6oDiF1Nf-rRJpZA')
+check()
 // setInterval(() => {
 //     check()
 // }, 300000)

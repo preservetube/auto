@@ -1,0 +1,19 @@
+{
+  "name": "preservetube-auto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "prisma": "^4.9.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.9.0",
+    "aws-sdk": "2.1128.0",
+    "child_process": "^1.0.2",
+    "dotenv": "^16.0.3",
+    "ioredis": "^5.3.1",
+    "node-fetch": "2",
+    "p-queue": "6.6.2",
+    "winston": "^3.8.2"
+  }
+}

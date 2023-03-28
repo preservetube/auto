@@ -15,7 +15,6 @@ const { PrismaClient } =  require('@prisma/client')
 const prisma = new PrismaClient()
 
 const queue = new BQueue('download', {
-    concurrency: 4,
     redis: {
         host: process.env.REDIS_HOST,
         port: process.env.REDIS_PORT,
@@ -75,7 +74,7 @@ async function checkChannel(channelId) {
     })
 }
 
-queue.process(async function (job, done) {
+queue.process(5, async function (job, done) {
     const { video, id } = job.data
 
     logger.info({ message: `Starting to download ${video.title}, ${id}` })

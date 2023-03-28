@@ -19,7 +19,10 @@ const queue = new BQueue('download', {
         host: process.env.REDIS_HOST,
         port: process.env.REDIS_PORT,
         password: process.env.REDIS_PASS,
-    }
+    },
+    removeOnFailure: true,
+    removeOnSuccess: true,
+    storeJobs: false
 })
 
 async function check() {
@@ -104,7 +107,7 @@ queue.process(5, async function (job, done) {
     }
 })
 
-check()
+checkChannel('UCFAiFyGs6oDiF1Nf-rRJpZA')
 // setInterval(() => {
 //     check()
 // }, 300000)

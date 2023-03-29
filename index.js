@@ -107,7 +107,6 @@ queue.process(5, async function (job, done) {
     }
 })
 
-check()
-// setInterval(() => {
-//     check()
-// }, 300000)
+setInterval(() => {
+    check()
+}, 300000)

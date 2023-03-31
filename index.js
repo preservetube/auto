@@ -100,7 +100,7 @@ queue.process(5, async function (job, done) {
             await database.createDatabaseVideo(id, videoUrl)
             await redis.del(id)
         } else {
-            await redis.set(id, 'error')
+            await redis.set(`blacklist:${id}`, 'error')
             logger.info({ message: `Couldn't find file for ${video.title}, ${id}` })
             return done()
         }

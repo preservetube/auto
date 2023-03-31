@@ -15,6 +15,19 @@ const { PrismaClient } =  require('@prisma/client')
 const prisma = new PrismaClient()
 
 const queue = new BQueue('download', {
+    prefix: 'download',
+    redis: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+        password: process.env.REDIS_PASS,
+    },
+    removeOnFailure: true,
+    removeOnSuccess: true,
+    storeJobs: false
+})
+
+const channelQueue = new BQueue('channel', {
+    prefix: 'channel',
     redis: {
         host: process.env.REDIS_HOST,
         port: process.env.REDIS_PORT,
@@ -28,15 +41,14 @@ const queue = new BQueue('download', {
 async function check() {
     const channels = await prisma.autodownload.findMany()
 
-    for (c of channels) {
+    channels.forEach(async (c) => {
         if (await redis.get(c.channel)) {
             logger.info({ message: `${c.channel} is already being downloaded` })
         } else {
             await redis.set(c.channel, 'downloading')
-            await checkChannel(c.channel)
-            await redis.del(c.channel)
+            channelQueue.createJob(c).save()
         }
-    }
+    })
 }
 
 async function checkChannel(channelId) {
@@ -105,6 +117,13 @@ queue.process(5, async function (job, done) {
             return done()
         }
     }
+})
+
+channelQueue.process(10, async function (job, done) {
+    const c = job.data
+
+    await checkChannel(c.channel)
+    await redis.del(c.channel)
 })
 
 setInterval(() => {

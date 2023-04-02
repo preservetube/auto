@@ -89,7 +89,7 @@ async function checkChannel(channelId) {
     })
 }
 
-queue.process(5, async function (job, done) {
+queue.process(3, async function (job, done) {
     const { video, id } = job.data
 
     logger.info({ message: `Starting to download ${video.title}, ${id}` })

@@ -126,6 +126,7 @@ channelQueue.process(10, async function (job, done) {
     await redis.del(c.channel)
 })
 
+check()
 setInterval(() => {
     check()
 }, 300000)

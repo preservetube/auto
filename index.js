@@ -89,7 +89,7 @@ async function checkChannel(channelId) {
     })
 }
 
-queue.process(3, async function (job, done) {
+queue.process(1, async function (job, done) {
     const { video, id } = job.data
 
     logger.info({ message: `Starting to download ${video.title}, ${id}` })
@@ -111,6 +111,7 @@ queue.process(3, async function (job, done) {
 
             await database.createDatabaseVideo(id, videoUrl)
             await redis.del(id)
+            return done()
         } else {
             await redis.set(`blacklist:${id}`, 'error')
             logger.info({ message: `Couldn't find file for ${video.title}, ${id}` })
@@ -124,6 +125,8 @@ channelQueue.process(10, async function (job, done) {
 
     await checkChannel(c.channel)
     await redis.del(c.channel)
+
+    done()
 })
 
 check()

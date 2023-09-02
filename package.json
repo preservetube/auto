@@ -7,6 +7,8 @@
     "prisma": "^4.9.0"
   },
   "dependencies": {
+    "@logtail/node": "^0.4.6",
+    "@logtail/winston": "^0.4.6",
     "@prisma/client": "^4.9.0",
     "aws-sdk": "2.1128.0",
     "bee-queue": "^1.5.0",

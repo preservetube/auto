@@ -3,9 +3,10 @@ version: "3.3"
 services:
   auto:
     container_name: preservetube-auto
-    image: preservetube/auto
+    image: ghcr.io/preservetube/auto
     networks:
       - public
+      - db
     restart: on-failure
     volumes:
       - ./logs:/usr/src/preservetube/auto/logs
@@ -14,5 +15,8 @@ services:
 
 networks:
   public:
-    external:
-      name: public
+    external: true
+    name: public
+  db:
+    external: true
+    name: db

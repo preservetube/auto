@@ -3,7 +3,7 @@ const logger = require('./logger.js')
 
 async function downloadVideo(url) {
     return new Promise((resolve, reject) => {
-        const child = child_process.spawn("../yt-dlp", ["--max-filesize=2G", url], {cwd: 'videos', shell: false})
+        const child = child_process.spawn("../yt-dlp", [url, ' -f 248+250/22/18/17'], {cwd: 'videos', shell: false})
         
         child.stdout.on("data", data => {
             const msg = data.toString().trim()

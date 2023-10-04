@@ -82,7 +82,6 @@ async function checkChannel(channelId) {
             return
         }
 
-        await redis.set(id, 'downloading')
         logger.info({ message: `Added ${video.title} to the queue, ${id}` })
 
         queue.createJob({ video, id }).save()
@@ -92,7 +91,13 @@ async function checkChannel(channelId) {
 queue.process(1, async function (job, done) {
     const { video, id } = job.data
 
+    if (await redis.get(id)) {
+        logger.info({ message: `Someone is already downloading ${video.title}, ${id}` })
+        return done()
+    }
+
     logger.info({ message: `Starting to download ${video.title}, ${id}` })
+    await redis.set(id, 'downloading')
 
     const download = await ytdlp.downloadVideo('https://www.youtube.com' + video.url)
     if (download.fail) {

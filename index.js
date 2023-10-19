@@ -137,4 +137,4 @@ channelQueue.process(10, async function (job, done) {
 check()
 setInterval(() => {
     check()
-}, 300000)
+}, 15 * 60000)

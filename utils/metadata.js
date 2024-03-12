@@ -90,7 +90,7 @@ async function getChannelVideos(id) {
                 })).json()
                 videos.push(...page.relatedStreams)
 
-                if (videos.length >= 30) return resolve(videos)
+                if (videos.length >= 30) return resolve(videos.slice(0,5))
                 if (page.nextpage) await getNextPage(page.nextpage)
                 else return resolve(videos)
             }

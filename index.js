@@ -42,12 +42,7 @@ async function check() {
     const channels = await prisma.autodownload.findMany()
 
     channels.forEach(async (c) => {
-        if (await redis.get(c.channel)) {
-            logger.info({ message: `${c.channel} is already being downloaded` })
-        } else {
-            await redis.set(c.channel, 'downloading')
-            channelQueue.createJob(c).save()
-        }
+        channelQueue.createJob(c).save()
     })
 }
 
@@ -77,8 +72,8 @@ async function checkChannel(channelId) {
             return
         }
 
-        if (video.duration > 7200) {
-            logger.info({ message: `${video.title} is longer than 2h, ${id}` })
+        if (video.duration > 1800) {
+            logger.info({ message: `${video.title} is longer than 30m, ${id}` })
             return
         }
 

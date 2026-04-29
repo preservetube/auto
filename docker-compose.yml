@@ -6,17 +6,11 @@ services:
     image: ghcr.io/preservetube/auto
     networks:
       - public
-      - db
     restart: on-failure
     volumes:
-      - ./logs:/usr/src/preservetube/auto/logs
       - ./.env:/usr/src/preservetube/auto/.env
-      - ./s3.json:/usr/src/preservetube/auto/s3.json
 
 networks:
   public:
     external: true
     name: public
-  db:
-    external: true
-    name: db

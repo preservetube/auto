@@ -1,3 +1,15 @@
-Preservetube's "auto" is responsible for automatically downloading and processing new YouTube videos. 
+# preservetube-auto
 
-For more information on Preservetube, please check [the main repository](https://github.com/PreserveTube/PreserveTube).
+To install dependencies:
+
+```bash
+bun install
+```
+
+To run:
+
+```bash
+bun run index.ts
+```
+
+This project was created using `bun init` in bun v1.3.9. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.

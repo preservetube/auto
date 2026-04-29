@@ -1,21 +1,18 @@
 {
   "name": "preservetube-auto",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "AGPL-3.0",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
   "devDependencies": {
-    "prisma": "^4.9.0"
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.6",
-    "@logtail/winston": "^0.4.6",
-    "@prisma/client": "^4.9.0",
-    "aws-sdk": "2.1128.0",
-    "bee-queue": "^1.5.0",
-    "child_process": "^1.0.2",
-    "dotenv": "^16.0.3",
-    "ioredis": "^5.3.1",
-    "node-fetch": "2",
-    "winston": "^3.8.2"
+    "@types/pg": "^8.20.0",
+    "kysely": "^0.28.16",
+    "pg": "^8.20.0",
+    "youtubei.js": "^17.0.1"
   }
 }

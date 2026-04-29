@@ -1,14 +1,9 @@
-FROM node:alpine
-
-RUN apk add --no-cache python3 
+FROM oven/bun:1 AS base
 
 RUN mkdir -p /usr/src/preservetube/auto
 WORKDIR /usr/src/preservetube/auto
 
 COPY . /usr/src/preservetube/auto
-RUN yarn
+RUN bun install
 
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2023.09.24/yt-dlp -q
-RUN chmod +x yt-dlp
-
-CMD ["node", "index.js"]
+CMD ["bun", "run", "src/index.ts"]

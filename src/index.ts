@@ -1,4 +1,3 @@
-import { Innertube } from 'youtubei.js'
 import healthStatus from '@/utils/health';
 import { db } from '@/utils/database'
 import { getChannelVideos } from './utils/metadata';
@@ -8,7 +7,6 @@ if (healthStatus[process.env.METADATA!] != 'healthy') {
   websocket = process.env.ALTERNATIVE_WEBSOCKET!
 }
 
-const yt = await Innertube.create();
 const channels = await db.selectFrom('autodownload')
   .selectAll()
   .execute()

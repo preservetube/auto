@@ -1,6 +1,7 @@
 import { Innertube } from 'youtubei.js'
 import healthStatus from '@/utils/health';
 import { db } from '@/utils/database'
+import { getChannelVideos } from './utils/metadata';
 
 let websocket = process.env.WEBSOCKET
 if (healthStatus[process.env.METADATA!] != 'healthy') {
@@ -14,23 +15,22 @@ const channels = await db.selectFrom('autodownload')
 
 for (const c of channels) {
   console.log(c.channel)
-  const channel = await yt.getChannel(c.channel);
-  const json = await channel.getVideos();
+  const videos = await getChannelVideos(c.channel)
 
-  for (const v of json.videos) {
-    console.log(v.video_id)
+  for (const v of videos) {
+    console.log(v.videoId)
     const already = await db.selectFrom('videos')
       .selectAll()
-      .where('id', '=', v.video_id)
+      .where('id', '=', v.videoId)
       .executeTakeFirst()
 
     if (already) continue
 
     await new Promise(async (resolve, reject) => {
-      const ws = new WebSocket(`${websocket}/save?url=http://www.youtube.com/watch?v=${v.video_id}&bKey=${process.env.bKey}`)
+      const ws = new WebSocket(`${websocket}/save?url=http://www.youtube.com/watch?v=${v.videoId}&bKey=${process.env.bKey}`)
 
       ws.onopen = () => {
-        console.log(`opened websocket for ${v.video_id}`)
+        console.log(`opened websocket for ${v.videoId}`)
       }
 
       ws.onmessage = (event) => {
